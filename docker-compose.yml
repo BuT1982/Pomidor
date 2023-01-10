@@ -24,3 +24,21 @@ services:
       - POSTGRES_DB=pomidor_db
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
+
+  redis:
+    image: redis:7.0.5-alpine3.17
+    hostname: redis
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command:
+      -A celery_app.app worker --loglevel=info
+    volumes:
+      - ./service:/service
+    links:
+      - redis
+    depends_on:
+      - redis
